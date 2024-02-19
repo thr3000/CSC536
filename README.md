@@ -8,4 +8,3 @@ docker-compose build
 docker-compose up -d
 ```
 Application host on http://localhost:80
-
