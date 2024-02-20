@@ -1,7 +1,9 @@
 services:
-    laravel.test:
+    laravel_app:
+        env_file: 
+            - ./csc536-laravel/.env
         build:
-            context: ./vendor/laravel/sail/runtimes/8.3
+            context: ./csc536-laravel/vendor/laravel/sail/runtimes/8.3
             dockerfile: Dockerfile
             args:
                 WWWGROUP: '${WWWGROUP}'
@@ -18,7 +20,7 @@ services:
             XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
             IGNITION_LOCAL_SITES_PATH: '${PWD}'
         volumes:
-            - '.:/var/www/html'
+            - './csc536-laravel:/var/www/html'
         networks:
             - sail
         depends_on:
@@ -27,6 +29,21 @@ services:
             - meilisearch
             - mailpit
             - selenium
+    django_app:
+        build: 
+            context: ./csc536Django
+            dockerfile: Dockerfile
+        container_name: django_app
+        volumes:
+            - './csc536Django:/app'
+        ports:
+            - "8001:8000"
+        environment:
+            - DJANGO_SECRET_KEY=your_secret_key_here
+            - DJANGO_DEBUG=True  # Set to False in production
+        command: >
+            bash -c "python manage.py migrate &&
+                python manage.py runserver 0.0.0.0:8000"
     mysql:
         image: 'mysql/mysql-server:8.0'
         ports:
@@ -109,4 +126,6 @@ volumes:
     sail-redis:
         driver: local
     sail-meilisearch:
+        driver: local
+    django-data:
         driver: local

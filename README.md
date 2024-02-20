@@ -8,3 +8,13 @@ docker-compose build
 docker-compose up -d
 ```
 Application host on http://localhost:80
+
+### Troubleshooting
+1. 
+```
+ERROR: groupadd: invalid group ID 'sail'
+```
+Set Environment Variables Manually:
+```
+export WWWGROUP=1000
+```
