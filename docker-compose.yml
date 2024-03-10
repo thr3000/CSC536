@@ -3,7 +3,7 @@ services:
         env_file: 
             - ./csc536-laravel/.env
         build:
-            context: ./csc536-laravel/vendor/laravel/sail/runtimes/8.3
+            context: ./csc536-laravel/
             dockerfile: Dockerfile
             args:
                 WWWGROUP: '${WWWGROUP}'
