@@ -8,3 +8,7 @@ class Goals(models.Model):
     content = models.CharField(
         max_length=100
     )
+
+class Account(models.Model):
+    username = models.CharField(max_length=20)
+    password = models.CharField(max_length=200)
