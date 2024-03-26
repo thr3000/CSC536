@@ -1,16 +1,12 @@
 # CSC536
-### Docker installation:
-https://docs.docker.com/desktop/install/mac-install/
 
-### Run Django
-1.
+### Run Django=
 Turn on your Postgresql
 enter your password on terminal
 ```
 export DATABASE_PASSWORD=XXXX(Your password)
 ```
 ```
-docker build -t csc536django .
 python manage.py migrate
 ./manage.py runserver 0.0.0.0:8000
 ```
