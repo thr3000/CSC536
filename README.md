@@ -2,27 +2,29 @@
 ### Docker installation:
 https://docs.docker.com/desktop/install/mac-install/
 
+### Run Django
+1.
+Turn on your Postgresql
+enter your password on terminal
 ```
-cd csc536-laravel
-docker-compose build
-docker-compose up -d
+export DATABASE_PASSWORD=XXXX(Your password)
 ```
-Application host on http://localhost:80
+```
+docker build -t csc536django .
+python manage.py migrate
+./manage.py runserver 0.0.0.0:8000
+```
+Application host on http://localhost:8000/TestModel/homepage
 
 ### Troubleshooting
 1. 
 ```
-ERROR: groupadd: invalid group ID 'sail'
+env: python: No such file or directory
 ```
-Set Environment Variables Manually:
-```
-export WWWGROUP=1000
+Modify manage.py accordingly to your python version
 ```
 
-### Run Django 
-1. make sure postgresql DB is on
-2. Put the html file under the folder templates
+#!/usr/bin/env python
+or
+#!/usr/bin/env python3
 ```
-./manage.py runserver 0.0.0.0:8000
-```
-3. To access login page, use URL localhost:8000/TestModel/login

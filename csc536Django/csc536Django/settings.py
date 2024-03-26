@@ -82,7 +82,11 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
         "NAME": "goal",
         "USER": "postgres",
+<<<<<<<< HEAD:Project/csc536Django/settings.py
         "PASSWORD": "201358505113",
+========
+        "PASSWORD": os.getenv('DATABASE_PASSWORD'),
+>>>>>>>> main:Project/settings.py
         "HOST": "127.0.0.1",
         "PORT": "5432",
     }
