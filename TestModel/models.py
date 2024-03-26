@@ -11,4 +11,5 @@ class Goals(models.Model):
 
 class Account(models.Model):
     username = models.CharField(max_length=20)
+    email = models.CharField(max_length=200)
     password = models.CharField(max_length=200)
