@@ -143,28 +143,31 @@
             console.log(`  Subgoal ${subIndex + 1}: ${subgoalTitle}`);
             console.log(`  Timeline Date: ${timelineDate}`);
             console.log(`  Timeline Time: ${timelineTime}`);
+
+            axios.post('/TestModel/dashboard/', {
+              goalTitle: goalTitle,
+              subgoals: subgoalTitle,
+              timelineDate: timelineDate,
+              timelineTime: timelineTime
+            })
+            .then(response => {
+              if (response.status === 200) {
+                console.log('Goal data successfully submitted:', { goalTitle,subgoals,  timelineDate,timelineTime} );
+              } else {
+                console.error(response.data.message);
+              }
+                })
+                .catch(error => {
+                  console.error('Error submitting goal data:', error);
+                });
+
           });
         });
       }
 
 
 
-      axios.post('/TestModel/dashboard/', {
-        goalTitle: goalTitle,
-        subgoals: subgoalTitle,
-        timelineDate: timelineDate,
-        timelineTime: timelineTime
-      })
-      .then(response => {
-        if (response.status === 200) {
-          console.log('Goal data successfully submitted:', { goalTitle,subgoals,  timelineDate,timelineTime} );
-        } else {
-          console.error(response.data.message);
-        }
-          })
-          .catch(error => {
-            console.error('Error submitting goal data:', error);
-          });
+
     </script>
   </body>
 </html>
