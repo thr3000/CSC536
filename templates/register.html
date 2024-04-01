@@ -58,15 +58,17 @@
             <form id="registerForm">
                 <div class="form-group">
                     <label for="usernameInput" class="montserrat-title">Username</label>
-                    <input type="text" name = "username" class="form-control" id="usernameInput" placeholder="3 to 16 characters (only alphabets, numbers, and underscores are allowed)">
+                    <input type="text" name="username" class="form-control" id="usernameInput" placeholder="3 to 16 characters (only alphabets, numbers, and underscores are allowed)">
+                    <small id="usernameError" class="text-danger"></small> <!-- Error message for username -->
                 </div>
                 <div class="form-group">
                     <label for="emailInput" class="montserrat-title">Email</label>
-                    <input type="email" name= "email" class="form-control" id="emailInput" placeholder="Enter Email">
+                    <input type="email" name="email" class="form-control" id="emailInput" placeholder="Enter Email">
                 </div>
                 <div class="form-group">
                     <label for="passwordInput" class="montserrat-title">Password</label>
-                    <input type="password" name= "password" class="form-control" id="passwordInput" placeholder="Must include at least: 8 characters, one uppercase letter, one number, one special character">
+                    <input type="password" name="password" class="form-control" id="passwordInput" placeholder="Must include at least: 8 characters, one uppercase letter, one number, one special character">
+                    <small id="passwordError" class="text-danger"></small> <!-- Error message for password -->
                 </div>
                 <div class="form-group">
                     <label for="confirmPasswordInput" class="montserrat-title">Re-enter Password</label>
@@ -92,9 +94,28 @@
             var password = document.getElementById('passwordInput').value;
             var confirmPassword = document.getElementById('confirmPasswordInput').value;
 
-            if (!username || !email || !password || !confirmPassword) {
-                Swal.fire('Validation error', 'All fields are required', 'error');
+            // Validation for username
+            var usernameRegex = /^[a-zA-Z0-9_]{3,16}$/; // Regular expression for username
+            if (!username) {
+                document.getElementById('usernameError').textContent = 'Username is required';
                 return;
+            } else if (!usernameRegex.test(username)) {
+                document.getElementById('usernameError').textContent = 'Username must be 3 to 16 characters long and contain only alphabets, numbers, and underscores';
+                return;
+            } else {
+                document.getElementById('usernameError').textContent = '';
+            }
+
+            // Validation for password
+            var passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/; // Regular expression for password
+            if (!password) {
+                document.getElementById('passwordError').textContent = 'Password is required';
+                return;
+            } else if (!passwordRegex.test(password)) {
+                document.getElementById('passwordError').textContent = 'Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character';
+                return;
+            } else {
+                document.getElementById('passwordError').textContent = '';
             }
 
             if (password !== confirmPassword) {
