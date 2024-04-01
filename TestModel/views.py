@@ -6,10 +6,6 @@ from django.shortcuts import render, redirect
 import json
 from django.http import JsonResponse
 
-def testdb(request):
-    goals = Goals(create_date='2024.3.10', content='finish proposal')
-    goals.save()
-    return HttpResponse("<p>a new goal finish proposal is added successfully</p>")
 
 def login(request):
     if request.method == 'POST':
@@ -24,9 +20,35 @@ def login(request):
     if request.method == 'GET':
         return render(request, 'login.html')
 
+def store_goals(data):
+    cnt = len(Goals.objects.all())
+    goalTitle = data.get("goalTitle")
+    subgoals = data.get("subgoals")
+    timelineDate = data.get("timelineDate")
+    timelineTime = data.get("timelineTime")
+    goals = Goals(cnt, goalTitle, subgoals, timelineDate, timelineTime)
+    goals.save()
+
+def scan_goals():
+    goals = Goals.objects.all()
+    goals_dic = {}
+    for g in goals:
+        goals_dic[g.id] = [g.goalTitle,g.subgoals,g.timelineDate,g.timelineTime]
+    return goals_dic
+def goals(request):
+    if request.method == 'GET':
+        goals = scan_goals()
+        print(goals)
+        return render(request,"goals.html", {"goals":goals})
 def dashboard(request):
     if request.method == 'GET':
         return render(request, 'dashboard.html')
+    if request.method == 'POST':
+        print("post is detected")
+        data = json.loads(request.body)
+        store_goals(data)
+        goals = scan_goals
+        return JsonResponse({'message': str(goals)}, status=200)
 
 from django.contrib.auth.models import User
 def register(request):

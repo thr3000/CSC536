@@ -1,4 +1,4 @@
-from TestModel.views import login, testdb, homepage, register, dashboard
+from TestModel.views import login, homepage, register, dashboard, goals
 from django.urls import path
 
 urlpatterns = [
@@ -6,5 +6,5 @@ urlpatterns = [
     path('homepage/', homepage, name='homepage'),
     path('register/', register, name='register'),
     path('dashboard/', dashboard, name='dashboard'),
-    path('testdb/', testdb, name='testdb'),
+    path('goals/', goals, name = 'goals')
 ]

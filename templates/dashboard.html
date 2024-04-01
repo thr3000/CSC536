@@ -152,7 +152,10 @@
             })
             .then(response => {
               if (response.status === 200) {
+                message = response.message
                 console.log('Goal data successfully submitted:', { goalTitle,subgoals,  timelineDate,timelineTime} );
+                console.log('all the goals are listed here:', {message})
+                window.location.href = '/TestModel/goals/'
               } else {
                 console.error(response.data.message);
               }
