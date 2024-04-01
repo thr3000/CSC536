@@ -73,6 +73,7 @@
                 <div class="form-group">
                     <label for="confirmPasswordInput" class="montserrat-title">Re-enter Password</label>
                     <input type="password" class="form-control" id="confirmPasswordInput" placeholder="Re-enter Password">
+                    <small id="confirmPasswordError" class="text-danger"></small> <!-- Error message for confirm password -->
                 </div>
                 <button type="submit" class="btn btn-custom-register mt-3 w-100">Register</button>
                 <br>
@@ -118,9 +119,12 @@
                 document.getElementById('passwordError').textContent = '';
             }
 
+            // Validation for confirm password
             if (password !== confirmPassword) {
-                Swal.fire('Validation error', 'Passwords do not match', 'error');
+                document.getElementById('confirmPasswordError').textContent = 'Passwords do not match';
                 return;
+            } else {
+                document.getElementById('confirmPasswordError').textContent = '';
             }
 
             axios.post('/TestModel/register/', {
@@ -128,6 +132,30 @@
                 email: email,
                 password: password
             })
+        });
+
+        // Validate password match on input change
+        document.getElementById('passwordInput').addEventListener('input', function () {
+            var password = document.getElementById('passwordInput').value;
+            var confirmPassword = document.getElementById('confirmPasswordInput').value;
+
+            if (password !== confirmPassword) {
+                document.getElementById('confirmPasswordError').textContent = 'Passwords do not match';
+            } else {
+                document.getElementById('confirmPasswordError').textContent = '';
+            }
+        });
+
+        // Validate confirm password match on input change
+        document.getElementById('confirmPasswordInput').addEventListener('input', function () {
+            var password = document.getElementById('passwordInput').value;
+            var confirmPassword = document.getElementById('confirmPasswordInput').value;
+
+            if (password !== confirmPassword) {
+                document.getElementById('confirmPasswordError').textContent = 'Passwords do not match';
+            } else {
+                document.getElementById('confirmPasswordError').textContent = '';
+            }
         });
     </script>
 </body>
