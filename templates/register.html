@@ -94,15 +94,16 @@
             var email = document.getElementById('emailInput').value;
             var password = document.getElementById('passwordInput').value;
             var confirmPassword = document.getElementById('confirmPasswordInput').value;
+            var validation = true;
 
             // Validation for username
             var usernameRegex = /^[a-zA-Z0-9_]{3,16}$/; // Regular expression for username
             if (!username) {
                 document.getElementById('usernameError').textContent = 'Username is required';
-                return;
+                validation = false;
             } else if (!usernameRegex.test(username)) {
                 document.getElementById('usernameError').textContent = 'Username must be 3 to 16 characters long and contain only alphabets, numbers, and underscores';
-                return;
+                validation = false;
             } else {
                 document.getElementById('usernameError').textContent = '';
             }
@@ -111,10 +112,10 @@
             var passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/; // Regular expression for password
             if (!password) {
                 document.getElementById('passwordError').textContent = 'Password is required';
-                return;
+                validation = false;
             } else if (!passwordRegex.test(password)) {
                 document.getElementById('passwordError').textContent = 'Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character';
-                return;
+                validation = false;
             } else {
                 document.getElementById('passwordError').textContent = '';
             }
@@ -122,40 +123,54 @@
             // Validation for confirm password
             if (password !== confirmPassword) {
                 document.getElementById('confirmPasswordError').textContent = 'Passwords do not match';
-                return;
+                validation = false;
             } else {
                 document.getElementById('confirmPasswordError').textContent = '';
+            }
+
+            // Validate password match on input change
+            document.getElementById('passwordInput').addEventListener('input', function () {
+                var password = document.getElementById('passwordInput').value;
+                var confirmPassword = document.getElementById('confirmPasswordInput').value;
+
+                if (password !== confirmPassword) {
+                    document.getElementById('confirmPasswordError').textContent = 'Passwords do not match';
+                    validation = false;
+                } else {
+                    document.getElementById('confirmPasswordError').textContent = '';
+                }
+            });
+
+            // Validate confirm password match on input change
+            document.getElementById('confirmPasswordInput').addEventListener('input', function () {
+                var password = document.getElementById('passwordInput').value;
+                var confirmPassword = document.getElementById('confirmPasswordInput').value;
+
+                if (password !== confirmPassword) {
+                    document.getElementById('confirmPasswordError').textContent = 'Passwords do not match';
+                    validation = false;
+                } else {
+                    document.getElementById('confirmPasswordError').textContent = '';
+                }
+            });
+
+            if (!validation) {
+                return;
             }
 
             axios.post('/TestModel/register/', {
                 username: username,
                 email: email,
                 password: password
-            })
-        });
-
-        // Validate password match on input change
-        document.getElementById('passwordInput').addEventListener('input', function () {
-            var password = document.getElementById('passwordInput').value;
-            var confirmPassword = document.getElementById('confirmPasswordInput').value;
-
-            if (password !== confirmPassword) {
-                document.getElementById('confirmPasswordError').textContent = 'Passwords do not match';
-            } else {
-                document.getElementById('confirmPasswordError').textContent = '';
-            }
-        });
-
-        // Validate confirm password match on input change
-        document.getElementById('confirmPasswordInput').addEventListener('input', function () {
-            var password = document.getElementById('passwordInput').value;
-            var confirmPassword = document.getElementById('confirmPasswordInput').value;
-
-            if (password !== confirmPassword) {
-                document.getElementById('confirmPasswordError').textContent = 'Passwords do not match';
-            } else {
-                document.getElementById('confirmPasswordError').textContent = '';
-            }
+            }).then(response => {
+                Swal.fire('Congratulations', 'Your account has been successfully created', 'success')
+                    .then(() => {
+                        window.location.href = '/TestModel/login/';
+                    });
+            }).catch(error => {
+                Swal.fire('Oops', 'Something went wrong...', 'error');
+                console.log('Error during login:', error);
+            });
         });
     </script>
 </body>

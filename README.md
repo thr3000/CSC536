@@ -1,6 +1,6 @@
 # CSC536
 
-### Run Django=
+### Run Django
 Turn on your Postgresql
 enter your password on terminal
 ```
