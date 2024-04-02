@@ -19,7 +19,7 @@
     .navbar-custom {
         background-color: #636363; /* Dark gray background for navbar */
     }
-    .navbar-brand {
+    .navbar-brand, .nav-link {
         color: #DBDBDB; /* Light gray text color */
     }
     .btn-secondary {
@@ -57,8 +57,20 @@
     <nav class="navbar navbar-expand-lg navbar-custom">
       <div class="container-fluid">
           <a class="navbar-brand montserrat-title" href="#">Dashboard</a>
+          <div class="dropdown">
+              <a class="nav-link dropdown-toggle montserrat-title" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <li><a class="dropdown-item" href="#" onclick="logout()">Logout</a></li>
+              </ul>
+          </div>
       </div>
-  </nav>
+    </nav>
+  
+  <div class="container mt-4">
+    <div id="goalsList">
+    </div>
+  </div>
 
   <div class="container mt-5">
       <h1 class="mb-4 montserrat-title">Create a New Goal</h1>
@@ -79,6 +91,59 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
     <script>
+      document.getElementById('navbarDropdown').innerHTML = localStorage.getItem('username')
+      const goalsData = JSON.parse('{{ goals_json|safe }}');
+      displayGoals(goalsData);
+
+      function logout() {
+        localStorage.removeItem('username');
+        localStorage.removeItem('userid');
+        Swal.fire('Congratulations', 'Logout successfully', 'success')
+          .then(() => {
+            window.location.href = '/TestModel/homepage/';
+          });
+      }
+
+      function displayGoals(goalsData) {
+        const goalsList = document.getElementById('goalsList');
+        goalsList.innerHTML = '';
+
+        goalsData.forEach((goal) => {
+          const card = document.createElement('div');
+          card.className = 'card mb-3';
+
+          let subgoalsContent = goal.subgoals.map(subgoal => `
+            <li class="list-group-item" style="background-color: inherit; color: #4C4C4C;">
+              ${subgoal.subgoalTitle} ${subgoal.timelineDate || ''} ${subgoal.timelineTime || ''}
+            </li>
+          `).join('');
+
+          let checkBox = `<input type="checkbox" class="form-check-input" id="completedCheckbox${goal.id}" ${goal.completed ? 'checked' : ''} onclick="toggleCompletionStatus(${goal.id}, this)">`;
+
+          let headerColor = goal.completed ? '#85C7F2' : '#636363';
+          let headerTextColor = goal.completed ? '#FFFFFF' : '#D1D1D1';
+
+          card.innerHTML = `
+            <div class="card-header" style="background-color: ${headerColor}; color: ${headerTextColor};">
+              ${checkBox} ${goal.goalTitle}
+            </div>
+            <ul class="list-group list-group-flush">
+              ${subgoalsContent}
+            </ul>
+          `;
+
+          goalsList.appendChild(card);
+        });
+      }
+
+      function toggleCompletionStatus(goalId, checkboxElem) {
+        const cardHeader = checkboxElem.closest('.card').querySelector('.card-header');
+        cardHeader.style.backgroundColor = checkboxElem.checked ? '#85C7F2' : '#636363';
+        cardHeader.style.color = checkboxElem.checked ? '#FFFFFF' : '#D1D1D1';
+        // Todo: make API Call
+      }
+
+
       function addSubgoal(button) {
         const goalContainer = button.closest('.goal');
         const subgoalsContainer = goalContainer.querySelector('.subgoalsContainer');
@@ -129,18 +194,14 @@
           });
         });
 
-        console.log(goalTitle)
-        console.log(subgoals)
         axios.post('/TestModel/dashboard/', {
+          userid: localStorage.getItem('userid'),
           goalTitle: goalTitle,
           subgoals: subgoals
         })
         .then(response => {
-          if (response.status === 200) {
-            console.log('Goal and subgoals submitted:', response.data.goals);
-          } else {
-            console.error('Error with the request:', response.data.message);
-          }
+          console.log('Goal and subgoals submitted:', response.data.goals);
+          displayGoals(response.data.goals);
         })
         .catch(error => {
           console.error('Error submitting goal data:', error);

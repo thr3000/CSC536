@@ -9,8 +9,7 @@ class Account(models.Model):
 class Goal(models.Model):
     user=models.ForeignKey(Account, on_delete=models.CASCADE)
     goalTitle = models.CharField(max_length=100)
-    timelineDate = models.CharField(max_length=100)
-    timelineTime = models.CharField(max_length=100)
+    
     completed = models.BooleanField(default=False)
 
 class Subgoal(models.Model):

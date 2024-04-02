@@ -94,6 +94,8 @@
             }).then(response => {
                 Swal.fire('Congratulations', 'Login successfully', 'success')
                     .then(() => {
+                        localStorage.setItem('username', response.data.username);
+                        localStorage.setItem('userid', response.data.userid);
                         window.location.href = '/TestModel/dashboard/';
                     });
             }).catch(error => {
