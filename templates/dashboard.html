@@ -179,6 +179,14 @@
         subgoalsContainer.appendChild(newSubgoal);
       }
 
+      function clearForm() {
+        const goalTitleInput = document.querySelector('[name="goalTitle"]');
+        goalTitleInput.value = '';
+
+        const subgoalsContainer = document.querySelector('.subgoalsContainer');
+        subgoalsContainer.innerHTML = '';
+      }
+
       function createGoal() {
         const goalTitle = document.querySelector('[name="goalTitle"]').value;
         const subgoalElements = document.querySelectorAll('.subgoal');
@@ -202,6 +210,7 @@
         .then(response => {
           console.log('Goal and subgoals submitted:', response.data.goals);
           displayGoals(response.data.goals);
+          clearForm();
         })
         .catch(error => {
           console.error('Error submitting goal data:', error);
