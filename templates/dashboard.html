@@ -63,38 +63,22 @@
   <div class="container mt-5">
       <h1 class="mb-4 montserrat-title">Create a New Goal</h1>
       <div id="goalsContainer">
-          <div id="goalFormTemplate" class="goal" style="display: none;">
+          <div id="goalFormTemplate" class="goal">
               <div class="mb-3">
-                  <label for="goalTitle" class="form-label montserrat-title">Goal Title</label>
+                  <label lass="form-label montserrat-title">Goal Title</label>
                   <input type="text" class="form-control" name="goalTitle" placeholder="Enter your goal title"/>
               </div>
               <div class="subgoalsContainer"></div>
               <button type="button" class="btn btn-secondary mb-3" onclick="addSubgoal(this)">Add Subgoal</button>
           </div>
       </div>
-      <button type="button" class="btn btn-secondary mt-3" onclick="addGoal()" id="addgoal">Add Goal</button>
-      <button type="submit" class="btn btn-secondary mt-3" onclick="createGoal()" style="display: none;" id="creategoal">Create Goal</button>
+      <button type="submit" class="btn btn-secondary mt-3" onclick="createGoal()" id="creategoal">Create Goal</button>
   </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
     <script>
-      function addGoal() {
-        const goalsContainer = document.getElementById('goalsContainer');
-        if (goalsContainer.children.length === 0) {
-          // Show the "Add Goal" button
-          document.querySelector('.btn-primary').style.display = 'block';
-        }
-        const goalFormTemplate = document.getElementById('goalFormTemplate');
-        const newGoal = goalFormTemplate.cloneNode(true);
-        newGoal.removeAttribute('id');
-        newGoal.style.display = 'block';
-        goalsContainer.appendChild(newGoal);
-        document.getElementById("addgoal").style.display = "none";
-        document.getElementById("creategoal").style.display = "block";
-      }
-
       function addSubgoal(button) {
         const goalContainer = button.closest('.goal');
         const subgoalsContainer = goalContainer.querySelector('.subgoalsContainer');
@@ -104,7 +88,7 @@
           <label for="subgoal" class="form-labe montserrat-title">Subgoal</label>
           <textarea
             class="form-control"
-            name="subgoal"
+            name="subgoalTitle"
             rows="3"
             placeholder="Enter your subgoal"
           ></textarea>
@@ -131,46 +115,37 @@
       }
 
       function createGoal() {
-        const goals = document.querySelectorAll('.goal');
-        goals.forEach((goal, index) => {
-          const goalTitle = goal.querySelector('[name="goalTitle"]').value;
-          console.log(`Goal ${index + 1}: ${goalTitle}`);
-          const subgoals = goal.querySelectorAll('.subgoal');
-          subgoals.forEach((subgoal, subIndex) => {
-            const subgoalTitle = subgoal.querySelector('[name="subgoal"]').value;
-            const timelineDate = subgoal.querySelector('[name="timelineDate"]').value;
-            const timelineTime = subgoal.querySelector('[name="timelineTime"]').value;
-            console.log(`  Subgoal ${subIndex + 1}: ${subgoalTitle}`);
-            console.log(`  Timeline Date: ${timelineDate}`);
-            console.log(`  Timeline Time: ${timelineTime}`);
-
-            axios.post('/TestModel/dashboard/', {
-              goalTitle: goalTitle,
-              subgoals: subgoalTitle,
-              timelineDate: timelineDate,
-              timelineTime: timelineTime
-            })
-            .then(response => {
-              if (response.status === 200) {
-                message = response.message
-                console.log('Goal data successfully submitted:', { goalTitle,subgoals,  timelineDate,timelineTime} );
-                console.log('all the goals are listed here:', {message})
-                window.location.href = '/TestModel/goals/'
-              } else {
-                console.error(response.data.message);
-              }
-                })
-                .catch(error => {
-                  console.error('Error submitting goal data:', error);
-                });
-
+        const goalTitle = document.querySelector('[name="goalTitle"]').value;
+        const subgoalElements = document.querySelectorAll('.subgoal');
+        let subgoals = [];
+        subgoalElements.forEach((subgoal, index) => {
+          const subgoalTitle = subgoal.querySelector('[name="subgoalTitle"]').value;
+          const timelineDate = subgoal.querySelector('[name="timelineDate"]').value;
+          const timelineTime = subgoal.querySelector('[name="timelineTime"]').value;
+          subgoals.push({
+            title: subgoalTitle,
+            timelineDate: timelineDate,
+            timelineTime: timelineTime
           });
         });
+
+        console.log(goalTitle)
+        console.log(subgoals)
+        axios.post('/TestModel/dashboard/', {
+          goalTitle: goalTitle,
+          subgoals: subgoals
+        })
+        .then(response => {
+          if (response.status === 200) {
+            console.log('Goal and subgoals submitted:', response.data.goals);
+          } else {
+            console.error('Error with the request:', response.data.message);
+          }
+        })
+        .catch(error => {
+          console.error('Error submitting goal data:', error);
+        });
       }
-
-
-
-
     </script>
   </body>
 </html>

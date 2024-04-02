@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from TestModel.models import Goals, Account
+from TestModel.models import Goal, Account, Subgoal
 from django.contrib import auth
 from django.shortcuts import render, redirect
 import json
@@ -21,34 +21,48 @@ def login(request):
         return render(request, 'login.html')
 
 def store_goals(data):
-    cnt = len(Goals.objects.all())
-    goalTitle = data.get("goalTitle")
-    subgoals = data.get("subgoals")
-    timelineDate = data.get("timelineDate")
-    timelineTime = data.get("timelineTime")
-    goals = Goals(cnt, goalTitle, subgoals, timelineDate, timelineTime)
-    goals.save()
+    goal = Goal(
+        goalTitle=data.get("goalTitle"),
+        timelineDate=data.get("timelineDate"),
+        timelineTime=data.get("timelineTime")
+    )
+    goal.save()
+
+    for subgoal_data in data.get("subgoals", []):
+        print(subgoal_data)
+        subgoal = Subgoal(
+            goal=goal,
+            title=subgoal_data.get("title"),
+            timelineDate=subgoal_data.get("timelineDate"),
+            timelineTime=subgoal_data.get("timelineTime")
+        )
+        subgoal.save()
 
 def scan_goals():
-    goals = Goals.objects.all()
     goals_dic = {}
-    for g in goals:
-        goals_dic[g.id] = [g.goalTitle,g.subgoals,g.timelineDate,g.timelineTime]
+    for goal in Goal.objects.prefetch_related('subgoal_set').all():
+        goals_dic[goal.id] = {
+            'goalTitle': goal.title,
+            'timelineDate': goal.timelineDate,
+            'timelineTime': goal.timelineTime,
+            'subgoals': [
+                {
+                    'title': subgoal.title,
+                    'timelineDate': subgoal.timelineDate,
+                    'timelineTime': subgoal.timelineTime
+                } for subgoal in goal.subgoal_set.all()
+            ]
+        }
     return goals_dic
-def goals(request):
-    if request.method == 'GET':
-        goals = scan_goals()
-        print(goals)
-        return render(request,"goals.html", {"goals":goals})
+
 def dashboard(request):
     if request.method == 'GET':
         return render(request, 'dashboard.html')
-    if request.method == 'POST':
-        print("post is detected")
+    elif request.method == 'POST':
         data = json.loads(request.body)
         store_goals(data)
-        goals = scan_goals
-        return JsonResponse({'message': str(goals)}, status=200)
+        goals = scan_goals()
+        return JsonResponse({'goals': goals}, status=200)
 
 from django.contrib.auth.models import User
 def register(request):
