@@ -205,7 +205,9 @@
         axios.post('/TestModel/dashboard/', {
           userid: localStorage.getItem('userid'),
           goalTitle: goalTitle,
-          subgoals: subgoals
+          subgoals: subgoals,
+          taskType: "Other",
+          taskStatus:"Done"
         })
         .then(response => {
           console.log('Goal and subgoals submitted:', response.data.goals);

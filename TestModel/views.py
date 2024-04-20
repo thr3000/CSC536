@@ -24,7 +24,9 @@ def login(request):
 def store_goals(data):
     goal = Goal(
         goalTitle=data.get("goalTitle"),
-        user_id=data.get('userid')
+        user_id=data.get('userid'),
+        # status = data.get('status'),
+        # type = data.get('type')
     )
     goal.save()
 
@@ -43,7 +45,8 @@ def scan_goals():
     for goal in Goal.objects.prefetch_related('subgoals').all():  # Use 'subgoals' instead of 'subgoal_set'
         goals_dic[goal.id] = {
             'goalTitle': goal.goalTitle,  # Ensure you're using the correct field name 'goalTitle'
-            'completed': goal.completed,
+            'taskStatus': goal.status,
+            'taskType':goal.type,
             'subgoals': [
                 {
                     'subgoalTitle': subgoal.subgoalTitle,  # Use 'subgoalTitle' as defined in your Subgoal model
