@@ -59,6 +59,26 @@ def scan_goals(status = "NULL"):
             }
     return goals_dic
 
+def update_goal_status(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            goal_id = data.get('goalId')
+            new_status = data.get('newStatus')
+            
+            goal = Goal.objects.get(id=goal_id)
+            goal.status = new_status
+            goal.save()
+            
+            response_data = {'message': 'Goal status updated successfully'}
+            return JsonResponse(response_data, status=200)
+        except Goal.DoesNotExist:
+            return JsonResponse({'message': 'Goal not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'message': str(e)}, status=500)
+    else:
+        return JsonResponse({'message': 'Invalid request method'}, status=405)
+
 def dashboard(request):
     if request.method == 'GET':
         goals = scan_goals("Not_Started") # default as NULL, the other choices are "Not_Started", "In_Progress", "Done"

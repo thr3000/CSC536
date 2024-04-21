@@ -52,6 +52,7 @@
         font-weight: 500;
         font-style: normal;
     }
+
   </style>
   <body>
     <nav class="navbar navbar-expand-lg navbar-custom">
@@ -91,6 +92,12 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
     <script>
+      const statusColors = {
+        'Not Started': '#D1D1D1',
+        'In Progress': '#F0AD4E',
+        'Completed': '#5CB85C'
+      };
+
       document.getElementById('navbarDropdown').innerHTML = localStorage.getItem('username')
       const goalsData = JSON.parse('{{ goals_json|safe }}');
       displayGoals(goalsData);
@@ -118,14 +125,20 @@
             </li>
           `).join('');
 
-          let checkBox = `<input type="checkbox" class="form-check-input" id="completedCheckbox${goal.id}" ${goal.completed ? 'checked' : ''} onclick="toggleCompletionStatus(${goal.id}, this)">`;
+          const statusDropdown = `
+            <select onchange="updateGoalStatus(${goal.id}, this)" class="form-select form-select-sm">
+              <option value="Not Started" ${goal.status === 'Not Started' ? 'selected' : ''}>Not Started</option>
+              <option value="In Progress" ${goal.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+              <option value="Completed" ${goal.status === 'Completed' ? 'selected' : ''}>Completed</option>
+            </select>
+          `;
 
-          let headerColor = goal.completed ? '#85C7F2' : '#636363';
-          let headerTextColor = goal.completed ? '#FFFFFF' : '#D1D1D1';
+          let headerColor = statusColors[goal.status];
 
           card.innerHTML = `
-            <div class="card-header" style="background-color: ${headerColor}; color: ${headerTextColor};">
-              ${checkBox} ${goal.goalTitle}
+            <div class="card-header" style="background-color: ${headerColor}; display: flex; justify-content: space-between; align-items: center;">
+              <div>${goal.goalTitle}</div>
+              <div>${statusDropdown}</div>
             </div>
             <ul class="list-group list-group-flush">
               ${subgoalsContent}
@@ -136,11 +149,23 @@
         });
       }
 
-      function toggleCompletionStatus(goalId, checkboxElem) {
-        const cardHeader = checkboxElem.closest('.card').querySelector('.card-header');
-        cardHeader.style.backgroundColor = checkboxElem.checked ? '#85C7F2' : '#636363';
-        cardHeader.style.color = checkboxElem.checked ? '#FFFFFF' : '#D1D1D1';
-        // Todo: make API Call
+      function updateGoalStatus(goalId, selectElement) {
+        const selectedStatus = selectElement.value;
+        const cardHeader = selectElement.closest('.card-header');
+        cardHeader.style.backgroundColor = statusColors[selectedStatus];
+
+        const data = {
+          goalId: goalId,
+          newStatus: selectedStatus
+        };
+
+        axios.post('/TestModel/update_goal_status/', data)
+          .then(response => {
+            console.log('Status updated successfully:', response);
+          })
+          .catch(error => {
+            console.error('Error updating status:', error);
+          });
       }
 
 
@@ -207,7 +232,7 @@
           goalTitle: goalTitle,
           subgoals: subgoals,
           taskType: "Other",
-          taskStatus:"Not_Started"
+          taskStatus: "Not_Started"
         })
         .then(response => {
           console.log('Goal and subgoals submitted:', response.data.goals);
