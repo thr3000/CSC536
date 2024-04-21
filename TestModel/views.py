@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from TestModel.models import Goal, Account, Subgoal
+from TestModel.models import Goal, Account, Subgoal,Task_status
 from django.contrib import auth
 from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import render, redirect
@@ -25,8 +25,8 @@ def store_goals(data):
     goal = Goal(
         goalTitle=data.get("goalTitle"),
         user_id=data.get('userid'),
-        # status = data.get('status'),
-        # type = data.get('type')
+        status = data.get('taskStatus'),
+        type = data.get('taskType')
     )
     goal.save()
 
@@ -40,33 +40,34 @@ def store_goals(data):
         )
         subgoal.save()
 
-def scan_goals():
+def scan_goals(status = "NULL"):
     goals_dic = {}
     for goal in Goal.objects.prefetch_related('subgoals').all():  # Use 'subgoals' instead of 'subgoal_set'
-        goals_dic[goal.id] = {
-            'goalTitle': goal.goalTitle,  # Ensure you're using the correct field name 'goalTitle'
-            'taskStatus': goal.status,
-            'taskType':goal.type,
-            'subgoals': [
-                {
-                    'subgoalTitle': subgoal.subgoalTitle,  # Use 'subgoalTitle' as defined in your Subgoal model
-                    'timelineDate': subgoal.timelineDate,
-                    'timelineTime': subgoal.timelineTime,
-                    'completed': subgoal.completed
-                } for subgoal in goal.subgoals.all()  # Again, use 'subgoals' to iterate over related Subgoal objects
-            ]
-        }
+        if status == goal.status or status == "NULL": # To distinguish the status
+            goals_dic[goal.id] = {
+                'goalTitle': goal.goalTitle,  # Ensure you're using the correct field name 'goalTitle'
+                'taskStatus': goal.status,
+                'taskType':goal.type,
+                'subgoals': [
+                    {
+                        'subgoalTitle': subgoal.subgoalTitle,  # Use 'subgoalTitle' as defined in your Subgoal model
+                        'timelineDate': subgoal.timelineDate,
+                        'timelineTime': subgoal.timelineTime,
+                        'completed': subgoal.completed
+                    } for subgoal in goal.subgoals.all()  # Again, use 'subgoals' to iterate over related Subgoal objects
+                ]
+            }
     return goals_dic
 
 def dashboard(request):
     if request.method == 'GET':
-        goals = scan_goals()
+        goals = scan_goals("Not_Started") # default as NULL, the other choices are "Not_Started", "In_Progress", "Done"
         goals_json = json.dumps(list(goals.values()), cls=DjangoJSONEncoder)
         return render(request, 'dashboard.html', {'goals_json': goals_json})
     elif request.method == 'POST':
         data = json.loads(request.body)
         store_goals(data)
-        goals = scan_goals()
+        goals = scan_goals() # default as NULL, the other choices are "Not_Started", "In_Progress", "Done"
         goals_json = json.dumps(list(goals.values()), cls=DjangoJSONEncoder)
         goals_data = json.loads(goals_json)
         return JsonResponse({'goals': goals_data}, status=200)

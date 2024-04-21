@@ -14,14 +14,16 @@ class Task_status(Enum):
 class Task_type(Enum):
     Study = 'Study'
     Work = 'Work'
-    Entertainment = 'Entertainment'
     Other = "Other"
 
 class Goal(models.Model):
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super(Goal, self).save(*args, **kwargs)
     user=models.ForeignKey(Account, on_delete=models.CASCADE)
     goalTitle = models.CharField(max_length=100)
-    status = models.CharField(max_length=100, choices=[(tag, tag.value) for tag in Task_status],default=Task_status.Not_Started)
-    type = models.CharField(max_length=100, choices=[(tag, tag.value) for tag in Task_status],default=Task_type.Other)
+    status = models.CharField(max_length=100, choices=[(tag.name, tag.value) for tag in Task_status],default="Not_Started")
+    type = models.CharField(max_length=100, choices=[(tag.name, tag.value) for tag in Task_type],default="Other")
 
 class Subgoal(models.Model):
     goal = models.ForeignKey(Goal, related_name='subgoals', on_delete=models.CASCADE)
