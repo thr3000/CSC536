@@ -40,10 +40,10 @@ def store_goals(data):
         )
         subgoal.save()
 
-def scan_goals(status = "NULL"):
+def scan_goals(type = "NULL"):
     goals_dic = {}
     for goal in Goal.objects.prefetch_related('subgoals').all():  # Use 'subgoals' instead of 'subgoal_set'
-        if status == goal.status or status == "NULL": # To distinguish the status
+        if type == goal.type or type == "NULL": # To distinguish the status
             goals_dic[goal.id] = {
                 'goalId': goal.id,
                 'goalTitle': goal.goalTitle,  # Ensure you're using the correct field name 'goalTitle'
@@ -66,13 +66,30 @@ def update_goal_status(request):
             data = json.loads(request.body)
             goal_id = data.get('goalId')
             new_status = data.get('newStatus')
-            print(goal_id)
-            print(new_status)
+
             goal = Goal.objects.get(id=goal_id)
             goal.status = new_status
             goal.save()
             
             response_data = {'message': 'Goal status updated successfully'}
+            return JsonResponse(response_data, status=200)
+        except Exception as e:
+            return JsonResponse({'message': str(e)}, status=500)
+    else:
+        return JsonResponse({'message': 'Invalid request method'}, status=405)
+    
+def update_goal_type(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            goal_id = data.get('goalId')
+            new_type = data.get('newType')
+
+            goal = Goal.objects.get(id=goal_id)
+            goal.type = new_type
+            goal.save()
+            
+            response_data = {'message': 'Goal type updated successfully'}
             return JsonResponse(response_data, status=200)
         except Exception as e:
             return JsonResponse({'message': str(e)}, status=500)

@@ -14,6 +14,7 @@ class Task_status(Enum):
 class Task_type(Enum):
     Study = 'Study'
     Work = 'Work'
+    Home = 'Home'
     Other = "Other"
 
 class Goal(models.Model):

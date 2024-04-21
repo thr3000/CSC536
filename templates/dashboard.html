@@ -52,6 +52,10 @@
         font-weight: 500;
         font-style: normal;
     }
+    .dropdowns-container {
+      display: flex;
+      gap: 10px; /* This sets the space between your dropdowns */
+    }
 
   </style>
   <body>
@@ -93,7 +97,7 @@
 
     <script>
       const statusColors = {
-        'Not_Started': '#D1D1D1',
+        'Not_Started': '#F7FFF6',
         'In_Progress': '#F0AD4E',
         'Completed': '#5CB85C'
       };
@@ -128,10 +132,19 @@
           console.log(goal.taskStatus)
 
           const statusDropdown = `
-            <select onchange="updateGoalStatus(${goal.goalId}, this)" class="form-select form-select-sm">
+            <select onchange="updateGoalStatus(${goal.goalId}, this)" class="form-select form-select-sm style='width:300px'">
               <option value="Not_Started" ${goal.taskStatus === 'Not_Started' ? 'selected' : ''}>Not Started</option>
               <option value="In_Progress" ${goal.taskStatus === 'In_Progress' ? 'selected' : ''}>In Progress</option>
               <option value="Completed" ${goal.taskStatus === 'Completed' ? 'selected' : ''}>Completed</option>
+            </select>
+          `;
+
+          const typeDropdown = `
+            <select onchange="updateGoalType(${goal.goalId}, this)" class="form-select form-select-sm">
+              <option value="Study" ${goal.taskType === 'Study' ? 'selected' : ''}>Study</option>
+              <option value="Work" ${goal.taskType === 'Work' ? 'selected' : ''}>Work</option>
+              <option value="Home" ${goal.taskType === 'Home' ? 'selected' : ''}>Home</option>
+              <option value="Other" ${goal.taskType === 'Other' ? 'selected' : ''}>Other</option>
             </select>
           `;
 
@@ -139,9 +152,11 @@
 
           card.innerHTML = `
             <div class="card-header" style="background-color: ${headerColor}; display: flex; justify-content: space-between; align-items: center;">
-              <div style="display:None">${goal.goalId}</div>
               <div>${goal.goalTitle}</div>
-              <div>${statusDropdown}</div>
+              <div class="dropdowns-container">
+                ${typeDropdown}
+                ${statusDropdown}
+              </div>
             </div>
             <ul class="list-group list-group-flush">
               ${subgoalsContent}
@@ -150,6 +165,19 @@
 
           goalsList.appendChild(card);
         });
+      }
+
+      function updateGoalType(goalId, selectElement) {
+        axios.post('/TestModel/update_goal_type/', {
+              goalId: goalId,
+              newType: selectElement.value
+          })
+          .then(response => {
+            console.log('Type updated successfully:', response);
+          })
+          .catch(error => {
+            console.error('Error updating type:', error);
+          });
       }
 
       function updateGoalStatus(goalId, selectElement) {
