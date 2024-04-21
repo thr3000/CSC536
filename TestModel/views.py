@@ -40,10 +40,10 @@ def store_goals(data):
         )
         subgoal.save()
 
-def scan_goals(type = "NULL"):
+def scan_goals(status, type):
     goals_dic = {}
     for goal in Goal.objects.prefetch_related('subgoals').all():  # Use 'subgoals' instead of 'subgoal_set'
-        if type == goal.type or type == "NULL": # To distinguish the status
+        if (status == goal.status and type == goal.type) or (status == '' and type == '') or (status == '' and type == goal.type) or (status == goal.status and type == ''):
             goals_dic[goal.id] = {
                 'goalId': goal.id,
                 'goalTitle': goal.goalTitle,  # Ensure you're using the correct field name 'goalTitle'
@@ -95,16 +95,28 @@ def update_goal_type(request):
             return JsonResponse({'message': str(e)}, status=500)
     else:
         return JsonResponse({'message': 'Invalid request method'}, status=405)
+    
+def sort_goal(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        sortType = data.get('sortType')
+        sortStatus = data.get('sortStatus')
+        goals = scan_goals(sortStatus, sortType)
+        goals_json = json.dumps(list(goals.values()), cls=DjangoJSONEncoder)
+        goals_data = json.loads(goals_json)
+        return JsonResponse({'goals': goals_data}, status=200)
+    else:
+        return JsonResponse({'message': 'Invalid request method'}, status=500)
 
 def dashboard(request):
     if request.method == 'GET':
-        goals = scan_goals()
+        goals = scan_goals('', '')
         goals_json = json.dumps(list(goals.values()), cls=DjangoJSONEncoder)
         return render(request, 'dashboard.html', {'goals_json': goals_json})
     elif request.method == 'POST':
         data = json.loads(request.body)
         store_goals(data)
-        goals = scan_goals() # default as NULL, the other choices are "Not_Started", "In_Progress", "Done"
+        goals = scan_goals('', '') # default as NULL, the other choices are "Not_Started", "In_Progress", "Done"
         goals_json = json.dumps(list(goals.values()), cls=DjangoJSONEncoder)
         goals_data = json.loads(goals_json)
         return JsonResponse({'goals': goals_data}, status=200)

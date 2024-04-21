@@ -56,6 +56,12 @@
       display: flex;
       gap: 10px; /* This sets the space between your dropdowns */
     }
+    .sorting-controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px; /* Adjust as needed */
+    }
 
   </style>
   <body>
@@ -71,6 +77,24 @@
           </div>
       </div>
     </nav>
+    <div class="container mt-4 sorting-controls">
+      <select id="sortType" class="form-select-sm">
+        <option value="">Sort by Type</option>
+        <option value="Study">Study</option>
+        <option value="Work">Work</option>
+        <option value="Home">Home</option>
+        <option value="Other">Other</option>
+      </select>
+      
+      <select id="sortStatus" class="form-select-sm">
+        <option value="">Sort by Status</option>
+        <option value="Not_Started">Not Started</option>
+        <option value="In_Progress">In Progress</option>
+        <option value="Completed">Completed</option>
+      </select>
+    
+      <button onclick="sortGoals()" class="btn btn-primary">Sort Goals</button>
+    </div>
   
   <div class="container mt-4">
     <div id="goalsList">
@@ -129,8 +153,6 @@
             </li>
           `).join('');
 
-          console.log(goal.taskStatus)
-
           const statusDropdown = `
             <select onchange="updateGoalStatus(${goal.goalId}, this)" class="form-select form-select-sm style='width:300px'">
               <option value="Not_Started" ${goal.taskStatus === 'Not_Started' ? 'selected' : ''}>Not Started</option>
@@ -165,6 +187,22 @@
 
           goalsList.appendChild(card);
         });
+      }
+
+      function sortGoals() {
+        const sortTypeValue = document.getElementById('sortType').value;
+        const sortStatusValue = document.getElementById('sortStatus').value;
+        console.log(sortTypeValue)
+        console.log(sortStatusValue)
+        
+        axios.post('/TestModel/sort_goal/', {
+          sortType: sortTypeValue,
+          sortStatus: sortStatusValue
+        })
+        .then(response => {
+          console.log(response)
+          displayGoals(response.data.goals);
+        })
       }
 
       function updateGoalType(goalId, selectElement) {
