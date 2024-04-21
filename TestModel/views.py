@@ -153,6 +153,19 @@ def homepage(request):
     if request.method == 'GET':
         return render(request, 'homepage.html')
     
+def summary(request):
+    if request.method == 'GET':
+        stat = dict()
+        stat["goals_all"]  = len(scan_goals("",""))
+        stat["goals_not_started"] = len(scan_goals("Not_Started",""))
+        stat["goals_in_progress"] = len(scan_goals("In_Progress",""))
+        stat["goals_completed"] = len(scan_goals("Completed",""))
+        stat["goals_study"] =len(scan_goals("","Study"))
+        stat["goals_work"] = len(scan_goals("","Work"))
+        stat["goals_home"] = len(scan_goals("","Home"))
+        stat["goals_other"] = len(scan_goals("","Other"))
+        return JsonResponse({'stat': stat}, status=200)
+        
 def overview(request):
     if request.method == 'GET':
         return render(request, 'overview.html')
