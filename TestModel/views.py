@@ -60,6 +60,21 @@ def scan_goals(status, type):
             }
     return goals_dic
 
+def delete_goal(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            goal_id = data.get('goalId')
+            Goal.objects.filter(id=goal_id).delete()
+            goals = scan_goals("", "")
+            goals_json = json.dumps(list(goals.values()), cls=DjangoJSONEncoder)
+            goals_data = json.loads(goals_json)
+            return JsonResponse({'goals': goals_data}, status=200)
+        except Exception as e:
+            return JsonResponse({'message': str(e)}, status=500)
+    else:
+        return JsonResponse({'message': 'Invalid request method'}, status=405)
+
 def update_goal_status(request):
     if request.method == 'POST':
         try:
@@ -137,3 +152,7 @@ def register(request):
 def homepage(request):
     if request.method == 'GET':
         return render(request, 'homepage.html')
+    
+def overview(request):
+    if request.method == 'GET':
+        return render(request, 'overview.html')
