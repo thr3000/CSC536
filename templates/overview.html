@@ -15,6 +15,12 @@
             margin: 0;
             background-color: #D1D1D1;
         }
+        .navbar-custom {
+        background-color: #636363; /* Dark gray background for navbar */
+        }
+        .navbar-brand, .nav-link {
+            color: #DBDBDB; /* Light gray text color */
+        }
         .montserrat-title {
             font-family: "Montserrat", sans-serif;
             font-optical-sizing: auto;
@@ -24,10 +30,34 @@
     </style>
 </head>
 <body>
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container-fluid">
+            <a class="navbar-brand montserrat-title" href="/TestModel/dashboard/">Dashboard</a>
+            <div class="dropdown">
+                <a class="nav-link dropdown-toggle montserrat-title" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                    <li><a class="dropdown-item" href="/TestModel/overview/">Overview</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="logout()">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+      </nav>
     <div id="example"></div>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
+        document.getElementById('navbarDropdown').innerHTML = localStorage.getItem('username')
+
+        function logout() {
+            localStorage.removeItem('username');
+            localStorage.removeItem('userid');
+            Swal.fire('Congratulations', 'Logout successfully', 'success')
+            .then(() => {
+                window.location.href = '/TestModel/homepage/';
+            });
+        }
+
         axios.get('/TestModel/summary/')
         .then(response => {
             const stats = response.data.stat;
