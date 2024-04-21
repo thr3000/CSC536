@@ -7,9 +7,9 @@ class Account(models.Model):
     password = models.CharField(max_length=200)
 
 class Task_status(Enum):
-    Not_Started = 'Not started'
-    In_Progress = 'In progress'
-    Done = 'Done'
+    Not_Started = 'Not Started'
+    In_Progress = 'In Progress'
+    Completed = 'Completed'
 
 class Task_type(Enum):
     Study = 'Study'

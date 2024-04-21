@@ -45,6 +45,7 @@ def scan_goals(status = "NULL"):
     for goal in Goal.objects.prefetch_related('subgoals').all():  # Use 'subgoals' instead of 'subgoal_set'
         if status == goal.status or status == "NULL": # To distinguish the status
             goals_dic[goal.id] = {
+                'goalId': goal.id,
                 'goalTitle': goal.goalTitle,  # Ensure you're using the correct field name 'goalTitle'
                 'taskStatus': goal.status,
                 'taskType':goal.type,
@@ -65,15 +66,14 @@ def update_goal_status(request):
             data = json.loads(request.body)
             goal_id = data.get('goalId')
             new_status = data.get('newStatus')
-            
+            print(goal_id)
+            print(new_status)
             goal = Goal.objects.get(id=goal_id)
             goal.status = new_status
             goal.save()
             
             response_data = {'message': 'Goal status updated successfully'}
             return JsonResponse(response_data, status=200)
-        except Goal.DoesNotExist:
-            return JsonResponse({'message': 'Goal not found'}, status=404)
         except Exception as e:
             return JsonResponse({'message': str(e)}, status=500)
     else:
@@ -81,7 +81,7 @@ def update_goal_status(request):
 
 def dashboard(request):
     if request.method == 'GET':
-        goals = scan_goals("Not_Started") # default as NULL, the other choices are "Not_Started", "In_Progress", "Done"
+        goals = scan_goals()
         goals_json = json.dumps(list(goals.values()), cls=DjangoJSONEncoder)
         return render(request, 'dashboard.html', {'goals_json': goals_json})
     elif request.method == 'POST':

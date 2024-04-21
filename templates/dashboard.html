@@ -93,8 +93,8 @@
 
     <script>
       const statusColors = {
-        'Not Started': '#D1D1D1',
-        'In Progress': '#F0AD4E',
+        'Not_Started': '#D1D1D1',
+        'In_Progress': '#F0AD4E',
         'Completed': '#5CB85C'
       };
 
@@ -125,18 +125,21 @@
             </li>
           `).join('');
 
+          console.log(goal.taskStatus)
+
           const statusDropdown = `
-            <select onchange="updateGoalStatus(${goal.id}, this)" class="form-select form-select-sm">
-              <option value="Not Started" ${goal.status === 'Not Started' ? 'selected' : ''}>Not Started</option>
-              <option value="In Progress" ${goal.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
-              <option value="Completed" ${goal.status === 'Completed' ? 'selected' : ''}>Completed</option>
+            <select onchange="updateGoalStatus(${goal.goalId}, this)" class="form-select form-select-sm">
+              <option value="Not_Started" ${goal.taskStatus === 'Not_Started' ? 'selected' : ''}>Not Started</option>
+              <option value="In_Progress" ${goal.taskStatus === 'In_Progress' ? 'selected' : ''}>In Progress</option>
+              <option value="Completed" ${goal.taskStatus === 'Completed' ? 'selected' : ''}>Completed</option>
             </select>
           `;
 
-          let headerColor = statusColors[goal.status];
+          let headerColor = statusColors[goal.taskStatus];
 
           card.innerHTML = `
             <div class="card-header" style="background-color: ${headerColor}; display: flex; justify-content: space-between; align-items: center;">
+              <div style="display:None">${goal.goalId}</div>
               <div>${goal.goalTitle}</div>
               <div>${statusDropdown}</div>
             </div>
@@ -154,12 +157,10 @@
         const cardHeader = selectElement.closest('.card-header');
         cardHeader.style.backgroundColor = statusColors[selectedStatus];
 
-        const data = {
-          goalId: goalId,
-          newStatus: selectedStatus
-        };
-
-        axios.post('/TestModel/update_goal_status/', data)
+        axios.post('/TestModel/update_goal_status/', {
+              goalId: goalId,
+              newStatus: selectedStatus
+          })
           .then(response => {
             console.log('Status updated successfully:', response);
           })
