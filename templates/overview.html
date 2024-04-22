@@ -28,6 +28,21 @@
             font-weight: 500;
             font-style: normal;
         }
+        #chartContainer {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        #chartContainer .col-md-6 {
+            flex: 0 0 auto;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        #goalsChart, #categoryChart {
+            width: 100% !important;
+            height: auto !important;
+        }
     </style>
 </head>
 <body>
@@ -45,20 +60,30 @@
         </div>
     </nav>
     <div class="container mt-5">
-        <div id="example"></div>
-        <div class="row">
-            <div class="col-md-6">
-                <canvas id="goalsChart" width="400" height="400" class="mt-5"></canvas>
-            </div>
-            <div class="col-md-6">
-                <canvas id="categoryChart" width="400" height="400" class="mt-5"></canvas>
-            </div>
+        <div class="chart-options">
+            <select id="chartType" class="form-select" onchange="updateChartType(this.value)">
+                <option value="pie">Pie Chart</option>
+                <option value="bar">Bar Chart</option>
+                <option value="line">Line Chart</option>
+                <option value="list">List View</option>
+            </select>
         </div>
+        <div id="chartContainer" class="row mt-5 justify-content-center text-center" style="display:none;">
+            <div class="col-md-6">
+                <canvas id="goalsChart"></canvas>
+            </div>
+            <div class="col-md-6">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>           
+        <div id="ListView" class="mt-5" style="display: none;"></div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
         document.getElementById('navbarDropdown').innerHTML = localStorage.getItem('username');
+        let goalsChartInstance;
+        let categoryChartInstance;
 
         function logout() {
             localStorage.removeItem('username');
@@ -69,30 +94,238 @@
             });
         }
 
-        axios.get('/TestModel/summary/')
-        .then(response => {
-            const stats = response.data.stat;
-            let statsContent = `
-            <p>All Goals: ${stats.goals_all}</p>
-            <p>Completed Goals: ${stats.goals_completed}</p>
-            <p>In Progress Goals: ${stats.goals_in_progress}</p>
-            <p>Not Started Goals: ${stats.goals_not_started}</p>
-            `;
+        function updateChartType(chartType) {
+            localStorage.setItem('preferredChartType', chartType);
+            
+            axios.get('/TestModel/summary/')
+            .then(response => {
+                const stats = response.data.stat;
 
-            document.getElementById('example').innerHTML = statsContent;
+                switch(chartType) {
+                    case 'pie':
+                        document.getElementById('ListView').style.display='none';
+                        document.getElementById('chartContainer').style.display='block';
+                        generateGoalsPieChart(stats);
+                        generateCategoryPieChart(stats);
+                        break;
+                    case 'bar':
+                        document.getElementById('ListView').style.display='none';
+                        document.getElementById('chartContainer').style.display='block';
+                        generateGoalsBarChart(stats);
+                        generateCategoryBarChart(stats);
+                        break;
+                    case 'line':
+                        document.getElementById('ListView').style.display='none';
+                        document.getElementById('chartContainer').style.display='block';
+                        generateGoalsLineChart(stats);
+                        generateCategoryLineChart(stats);
+                        break;
+                    case 'list':
+                        document.getElementById('ListView').style.display='block';
+                        document.getElementById('chartContainer').style.display='none';
+                        generateListView(stats);
+                        break;
+                    default:
+                        document.getElementById('ListView').style.display='none';
+                        document.getElementById('chartContainer').style.display='block';
+                        generateGoalsPieChart(stats);
+                        generateCategoryPieChart(stats);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching stats:', error);
+            });
+        }
 
-            // Generate the pie charts
-            generateGoalsPieChart(stats);
-            generateCategoryPieChart(stats);
-        })
-        .catch(error => {
-            console.error('Error fetching stats:', error);
+        document.addEventListener('DOMContentLoaded', () => {
+            const preferredChartType = localStorage.getItem('preferredChartType') || 'pie';
+            document.getElementById('chartType').value = preferredChartType;
+            updateChartType(preferredChartType);
         });
+
+        function generateGoalsBarChart(stats) {
+            const ctx = document.getElementById('goalsChart').getContext('2d');
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            ctx.canvas.width = 600;
+            ctx.canvas.height = 600;
+
+            if (goalsChartInstance) {
+                goalsChartInstance.destroy();
+            }
+
+            goalsChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Completed Goals', 'In Progress Goals', 'Not Started Goals'],
+                    datasets: [{
+                        data: [stats.goals_completed, stats.goals_in_progress, stats.goals_not_started],
+                        backgroundColor: ['#5CB85C', '#F0AD4E', '#F7FFF6'],
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Goals Overview'
+                        }
+                    }
+                }
+            });
+        }
+
+        function generateCategoryBarChart(stats) {
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            ctx.canvas.width = 600;
+            ctx.canvas.height = 600;
+
+            if (categoryChartInstance) {
+                categoryChartInstance.destroy();
+            }
+
+            categoryChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Home Goals', 'Work Goals', 'Study Goals', 'Other Goals'],
+                    datasets: [{
+                        data: [stats.goals_home, stats.goals_work, stats.goals_study, stats.goals_other],
+                        backgroundColor: ['#397367', '#63ccca', '#5da399', '#42858c'],
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Goals by Category'
+                        }
+                    }
+                }
+            });
+        }
+
+        function generateGoalsLineChart(stats) {
+            const ctx = document.getElementById('goalsChart').getContext('2d');
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            ctx.canvas.width = 600;
+            ctx.canvas.height = 600;
+
+            if (goalsChartInstance) {
+                goalsChartInstance.destroy();
+            }
+
+            goalsChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Completed Goals', 'In Progress Goals', 'Not Started Goals'],
+                    datasets: [{
+                        data: [stats.goals_completed, stats.goals_in_progress, stats.goals_not_started],
+                        backgroundColor: ['#5CB85C', '#F0AD4E', '#F7FFF6'],
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Goals Overview'
+                        }
+                    }
+                }
+            });
+        }
+
+        function generateCategoryLineChart(stats) {
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            ctx.canvas.width = 600;
+            ctx.canvas.height = 600;
+
+            if (categoryChartInstance) {
+                categoryChartInstance.destroy();
+            }
+
+            categoryChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Home Goals', 'Work Goals', 'Study Goals', 'Other Goals'],
+                    datasets: [{
+                        data: [stats.goals_home, stats.goals_work, stats.goals_study, stats.goals_other],
+                        backgroundColor: ['#397367', '#63ccca', '#5da399', '#42858c'],
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Goals by Category'
+                        }
+                    }
+                }
+            });
+        }
+
+        function generateListView(stats) {
+            const listContainer = document.getElementById('ListView');
+
+            if (goalsChartInstance) {
+                goalsChartInstance.destroy();
+            }
+            if (categoryChartInstance) {
+                categoryChartInstance.destroy();
+            }
+
+            const htmlContent = `
+                <div class="list-group">
+                    <a href="#" class="list-group-item list-group-item-action active" style="background-color: #85C7F2; color: white; border: none;">
+                        Goals Overview
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">Completed: ${stats.goals_completed}</a>
+                    <a href="#" class="list-group-item list-group-item-action">In Progress: ${stats.goals_in_progress}</a>
+                    <a href="#" class="list-group-item list-group-item-action">Not Started: ${stats.goals_not_started}</a>
+                </div>
+                <div class="list-group mt-3">
+                    <a href="#" class="list-group-item list-group-item-action active" style="background-color: #85C7F2; color: white; border: none;">
+                        Goals by Category
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">Home: ${stats.goals_home}</a>
+                    <a href="#" class="list-group-item list-group-item-action">Work: ${stats.goals_work}</a>
+                    <a href="#" class="list-group-item list-group-item-action">Study: ${stats.goals_study}</a>
+                    <a href="#" class="list-group-item list-group-item-action">Other: ${stats.goals_other}</a>
+                </div>
+            `;
+            listContainer.innerHTML = htmlContent;
+        }
 
         function generateGoalsPieChart(stats) {
             const ctx = document.getElementById('goalsChart').getContext('2d');
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            ctx.canvas.width = 600;
+            ctx.canvas.height = 600;
 
-            new Chart(ctx, {
+            if (goalsChartInstance) {
+                goalsChartInstance.destroy();
+            }
+
+            goalsChartInstance = new Chart(ctx, {
                 type: 'pie',
                 data: {
                     labels: ['Completed Goals', 'In Progress Goals', 'Not Started Goals'],
@@ -119,14 +352,21 @@
 
         function generateCategoryPieChart(stats) {
             const ctx = document.getElementById('categoryChart').getContext('2d');
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            ctx.canvas.width = 600;
+            ctx.canvas.height = 600;
 
-            new Chart(ctx, {
+            if (categoryChartInstance) {
+                categoryChartInstance.destroy();
+            }
+
+            categoryChartInstance = new Chart(ctx, {
                 type: 'pie',
                 data: {
                     labels: ['Home Goals', 'Work Goals', 'Study Goals', 'Other Goals'],
                     datasets: [{
                         data: [stats.goals_home, stats.goals_work, stats.goals_study, stats.goals_other],
-                        backgroundColor: ['#FF6384', '#36A2EB', '#FF0000', '#4BC0C0'],
+                        backgroundColor: ['#397367', '#63ccca', '#5da399', '#42858c'],
                         hoverOffset: 4
                     }]
                 },
