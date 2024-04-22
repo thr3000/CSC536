@@ -51,6 +51,7 @@ def scan_goals(status, type):
                 'taskType':goal.type,
                 'subgoals': [
                     {
+                        'subgoalId': subgoal.id,
                         'subgoalTitle': subgoal.subgoalTitle,  # Use 'subgoalTitle' as defined in your Subgoal model
                         'timelineDate': subgoal.timelineDate,
                         'timelineTime': subgoal.timelineTime,
@@ -70,6 +71,24 @@ def delete_goal(request):
             goals_json = json.dumps(list(goals.values()), cls=DjangoJSONEncoder)
             goals_data = json.loads(goals_json)
             return JsonResponse({'goals': goals_data}, status=200)
+        except Exception as e:
+            return JsonResponse({'message': str(e)}, status=500)
+    else:
+        return JsonResponse({'message': 'Invalid request method'}, status=405)
+
+def update_subgoal_status(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            subgoal_id = data.get('subgoalId')
+            new_status = data.get('completed')
+
+            subgoal = Subgoal.objects.get(id=subgoal_id)
+            subgoal.completed = new_status
+            subgoal.save()
+            
+            response_data = {'message': 'Subgoal status updated successfully'}
+            return JsonResponse(response_data, status=200)
         except Exception as e:
             return JsonResponse({'message': str(e)}, status=500)
     else:

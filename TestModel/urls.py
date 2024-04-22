@@ -1,4 +1,4 @@
-from TestModel.views import login, homepage, register, dashboard, update_goal_status, update_goal_type, sort_goal, delete_goal, overview, summary
+from TestModel.views import login, homepage, register, dashboard, update_goal_status, update_goal_type, sort_goal, delete_goal, overview, summary, update_subgoal_status
 from django.urls import path
 
 urlpatterns = [
@@ -11,6 +11,7 @@ urlpatterns = [
     path('sort_goal/', sort_goal, name='sort_goal'),
     path('delete_goal/', delete_goal, name='delete_goal'),
     path('overview/', overview, name='overview'),
-    path('summary/', summary, name='summary')
+    path('summary/', summary, name='summary'),
+    path('update_subgoal_status/', update_subgoal_status, name='update_subgoal_status'),
     # path('goals/', goals, name = 'goals')
 ]

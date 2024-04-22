@@ -165,7 +165,13 @@
           card.className = 'card mb-3';
 
           let subgoalsContent = goal.subgoals.map(subgoal => `
-            <li class="list-group-item" style="background-color: inherit; color: #4C4C4C;">
+            <li class="list-group-item" 
+                style="background-color: inherit; color: #4C4C4C; display: flex; align-items: center;" 
+                data-subgoal-id="${subgoal.subgoalId}">
+              <input type="checkbox" 
+                    onclick="markSubgoalComplete(${subgoal.subgoalId}, this)" 
+                    ${subgoal.completed ? 'checked' : ''} 
+                    style="margin-right: 10px;">
               ${subgoal.subgoalTitle} ${subgoal.timelineDate || ''} ${subgoal.timelineTime || ''}
             </li>
           `).join('');
@@ -205,6 +211,15 @@
 
           goalsList.appendChild(card);
         });
+      }
+
+      function markSubgoalComplete(subgoalId, checkboxElement) {
+        console.log(`Subgoal ${subgoalId} marked as ${checkboxElement.checked ? true : false}.`);
+        
+        axios.post('/TestModel/update_subgoal_status/', { subgoalId: subgoalId, completed: checkboxElement.checked })
+        .then(response => {
+          console.log('Subgoal updated successfully:', response);
+        })
       }
 
       function sortGoals() {
