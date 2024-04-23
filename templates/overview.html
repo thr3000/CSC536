@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <title>Homepage</title>
+    <title>Overview</title>
     <style>
         body, html {
             height: 100%;
@@ -18,29 +18,18 @@
             font-family: 'Montserrat', sans-serif;
         }
         .navbar-custom {
-            background-color: #ff6f61;
-            padding: 1rem;
-            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
-        }
-        .navbar-brand, .nav-link {
-            color: #ffffff;
-            font-size: 1.8rem;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-        }
-        .dropdown-menu {
-            background-color: #ff6f61;
-            border: none;
-        }
-        .dropdown-item {
-            color: #ffffff;
-        }
-        .dropdown-item:hover {
-            background-color: #e96053;
+            background-color: #636363; /* Dark gray background for navbar */
         }
         .montserrat-title {
-            font-weight: 600;
+            font-family: "Montserrat", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: 500;
+            font-style: normal;
         }
         #chartContainer .col-md-6 {
+            flex: 0 0 auto;
+            max-width: 600px;
+            margin: 0 auto;
             background-color: #ffffff;
             border-radius: 12px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
@@ -50,32 +39,6 @@
         #goalsChart, #categoryChart {
             width: 100% !important;
             height: auto !important;
-        }
-        .list-group-item {
-            border: none;
-            margin-top: 5px;
-            padding: 12px;
-            background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        footer {
-            text-align: center;
-            padding: 20px;
-            background-color: #333;
-            color: #fff;
-            font-size: 1.2rem;
-            margin-top: 50px;
-            border-top: 2px solid #ff6f61;
-        }
-        /* Fancy Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        .fadeIn {
-            animation-name: fadeIn;
-            animation-duration: 1s;
         }
     </style>
 </head>
@@ -116,9 +79,6 @@
             <button class="btn btn-primary" onclick="showRandomQuote()">Show Inspirational Quote</button>
         </div> 
     </div>
-    <footer>
-        Copyright © 2024, Funky Dashboard. All rights reserved.
-    </footer>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
@@ -427,17 +387,17 @@
         }
 
         const quotes = [
-        "The future belongs to those who believe in the beauty of their dreams. - Eleanor Roosevelt",
-        "Believe you can and you're halfway there. - Theodore Roosevelt",
-        "Don't watch the clock; do what it does. Keep going. - Sam Levenson",
-        "The only way to do great work is to love what you do. - Steve Jobs",
-        "It does not matter how slowly you go as long as you do not stop. - Confucius",
-        "Success is not final, failure is not fatal: It is the courage to continue that counts. - Winston Churchill",
-        "The only limit to our realization of tomorrow is our doubts of today. - Franklin D. Roosevelt",
-        "Your time is limited, don't waste it living someone else's life. - Steve Jobs",
-        "Everything you've ever wanted is on the other side of fear. - George Addair",
-        "Hardships often prepare ordinary people for an extraordinary destiny. - C.S. Lewis"
-    ]; 
+            "The future belongs to those who believe in the beauty of their dreams. - Eleanor Roosevelt",
+            "Believe you can and you're halfway there. - Theodore Roosevelt",
+            "Don't watch the clock; do what it does. Keep going. - Sam Levenson",
+            "The only way to do great work is to love what you do. - Steve Jobs",
+            "It does not matter how slowly you go as long as you do not stop. - Confucius",
+            "Success is not final, failure is not fatal: It is the courage to continue that counts. - Winston Churchill",
+            "The only limit to our realization of tomorrow is our doubts of today. - Franklin D. Roosevelt",
+            "Your time is limited, don't waste it living someone else's life. - Steve Jobs",
+            "Everything you've ever wanted is on the other side of fear. - George Addair",
+            "Hardships often prepare ordinary people for an extraordinary destiny. - C.S. Lewis"
+        ]; 
     
         function showRandomQuote() {
             const randomIndex = Math.floor(Math.random() * quotes.length);
@@ -450,12 +410,6 @@
                 confirmButtonText: 'OK'
             });
         }
-
-
-
-
-
-
     </script>
 </body>
 </html>
