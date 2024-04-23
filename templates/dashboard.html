@@ -219,8 +219,33 @@
         axios.post('/TestModel/update_subgoal_status/', { subgoalId: subgoalId, completed: checkboxElement.checked })
         .then(response => {
           console.log('Subgoal updated successfully:', response);
+    
+            // Count the number of remaining subgoals for the current goal
+            const goalCard = checkboxElement.closest('.card');
+            const remainingSubgoals = goalCard.querySelectorAll('.list-group-item input[type="checkbox"]:not(:checked)').length;
+    
+            if (remainingSubgoals > 0) {
+                // Display the remaining subgoals in the popup message
+                Swal.fire({
+                    title: `You're ${remainingSubgoals} step(s) away from completing your goal!`,
+                    icon: 'info',
+                    confirmButtonText: 'Okay'
+                });
+            } 
+            else {
+                // All subgoals are completed
+                Swal.fire({
+                    title: 'Yay! You\'ve achieved your goal!',
+                    icon: 'success',
+                    confirmButtonText: 'Awesome!'
+                });
+            }
         })
-      }
+        .catch(error => {
+            console.error('Error updating subgoal status:', error);
+        });
+    }
+    
 
       function sortGoals() {
         const sortTypeValue = document.getElementById('sortType').value;
